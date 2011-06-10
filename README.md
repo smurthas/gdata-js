@@ -11,7 +11,7 @@ gdata-js has two methods:
 * getAccessToken(_req_, _res_, _callback_): Goes through the OAuth 2.0 flow to get an access token
 * getFeed(_http_method_, _path_, _params_, _callback_): Does a call to the Google Data API to get a feed object.
 
-oauth_token must be contained in the _params_ argument as demonstrated in test.js
+oauth\_token must be contained in the _params_ argument as demonstrated in test.js
 
 ## Test
 
