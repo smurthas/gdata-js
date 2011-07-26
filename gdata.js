@@ -16,10 +16,13 @@ module.exports = function(client_id, client_secret, redirect_uri) {
         if(req.query.error) {
             callback(req.query.error);
         } else if(!req.query.code) {
-            res.redirect(oauthBase + '/auth?' + querystring.stringify({client_id: clientID , 
-                                                redirect_uri: redirectURI, 
-                                                scope: scope, 
-                                                response_type: 'code'}));
+            var height = 750;
+            var width = 980;
+            resp = "<script type='text/javascript'>var left= (screen.width / 2) - (" + width + " / 2); var top = (screen.height / 2) - (" + height + " / 2); window.open('" + oauthBase + '/auth?' + querystring.stringify({client_id: clientID, redirect_uri: redirectURI, scope: scope, response_type: 'code'}) + "', 'auth', 'menubar=no,toolbar=no,status=no,width=" + width + ",height=" + height + ",toolbar=no,left=' + left + 'top=' + top);</script>";
+            res.end(resp + '<a target=_new href=\'' + oauthBase + '/auth?' + querystring.stringify({client_id: clientID , 
+                                                                                    redirect_uri: redirectURI, 
+                                                                                    scope: scope, 
+                                                                                    response_type: 'code'}) + '\'>Authenticate</a>');
         } else {
              doPost({grant_type:'authorization_code',
                       code:req.query.code,
