@@ -1,7 +1,8 @@
 var querystring = require('querystring');
-var request = require('request');
 var https = require('https');
 var EventEmitter = require('events').EventEmitter;
+
+var URL = require('url');
 
 var oauthBase = 'https://accounts.google.com/o/oauth2';
 
@@ -47,9 +48,24 @@ module.exports = function(client_id, client_secret, redirect_uri) {
         params.oauth_token = token.access_token;
         params.alt = 'json';
         var reqUrl = url + '?' + querystring.stringify(params);
-        request.get({uri:reqUrl}, function(err, resp, body) {
-            if(resp.statusCode === 401) {
-                console.error('401 baby!!');
+        doRequest(url, params, function(err, body) {
+            callback(err, body);
+        });
+    };
+    
+    
+    function doRequest(url, params, callback) {
+        var path = URL.parse(url).pathname + '?' + querystring.stringify(params);
+        var options = {
+            host: 'www.google.com',
+            port: 443,
+            path: path,
+            method: 'GET'
+        };
+
+        var httpsReq = https.request(options, function(httpsRes) {
+            if(httpsRes.statusCode === 401) {
+                console.error('401, baaaaby!');
                 refreshToken(function(err, result) {
                     if(!err && result && !result.error && result.access_token) {
                         token.access_token = result.access_token;
@@ -57,18 +73,24 @@ module.exports = function(client_id, client_secret, redirect_uri) {
                         client.getFeed(url, params, callback);
                     }
                 });
-            } else if(!err && body) {
-                try {
-                    body = JSON.parse(body);
-                } catch(e) {
-                    callback(e, body);
-                    return;
-                }
-                callback(null, body);
             } else {
-                callback(err, body);
+                var data = '';
+                httpsRes.on('data', function(moreData) {
+                    data += moreData;
+                });
+                httpsRes.on('close', function() {
+                    try {
+                        callback(null, JSON.parse(data.toString()));
+                    } catch(err) {
+                        callback(err, null);
+                    }
+                })
             }
         });
+        httpsReq.on('error', function(e) {
+            callback(e, null);
+        });
+        httpsReq.end();
     }
     
     function refreshToken(callback) {
@@ -90,6 +112,7 @@ module.exports = function(client_id, client_secret, redirect_uri) {
     return client;
 }
 
+
 function doPost(body, callback) {
     var options = {
         host: 'accounts.google.com',
@@ -99,9 +122,16 @@ function doPost(body, callback) {
         headers: {'Content-Type':'application/x-www-form-urlencoded'}
     };
     var httpsReq = https.request(options, function(httpsRes) {
-        httpsRes.on('data', function(data) {
-            callback(null, JSON.parse(data));
-        });
+        if(httpsRes.statusCode === 200) {
+            httpsRes.on('data', function(data) {
+                callback(null, JSON.parse(data.toString()));
+            });
+        } else {
+            httpsRes.on('data', function(data) {
+                console.error("refreshing token -- statusCode !== 200, yoikes! data:", data.toString());
+                callback(data.toString());
+            });
+        }
     });
     httpsReq.write(querystring.stringify(body));
     httpsReq.on('error', function(e) {
