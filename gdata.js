@@ -69,6 +69,7 @@ module.exports = function(client_id, client_secret, redirect_uri) {
                 refreshToken(function(err, result) {
                     if(!err && result && !result.error && result.access_token) {
                         token.access_token = result.access_token;
+                        token.refresh_token = result.refresh_token;
                         client.emit('tokenRefresh');
                         client.getFeed(url, params, callback);
                     }
@@ -99,10 +100,7 @@ module.exports = function(client_id, client_secret, redirect_uri) {
                 refresh_token:token.refresh_token,
                 grant_type:'refresh_token'
                }, function(err, result) {
-                   if(!err && result && result.access_token) {
-                       token.access_token
-                       result.refresh_token = token.refresh_token;
-                   } else {
+                   if(err || !result || !result.access_token) {
                        console.error('err', err);
                        console.error('result', result);
                    }
