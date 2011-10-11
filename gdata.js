@@ -65,7 +65,6 @@ module.exports = function(client_id, client_secret, redirect_uri) {
 
         var httpsReq = https.request(options, function(httpsRes) {
             if(httpsRes.statusCode === 401) {
-                console.error('401, baaaaby!');
                 refreshToken(function(err, result) {
                     if(!err && result && !result.error && result.access_token) {
                         token.access_token = result.access_token;

@@ -1,7 +1,7 @@
 {
     "name": "gdata-js",
     "description": "Simple OAuth 2.0 GData API client",
-    "version": "0.1.0",
+    "version": "0.1.1",
     "author": "Simon Murtha-Smith <simon@murtha-smith.com>",
     "keywords": ["google", "gdata"],
     "main" : "gdata.js",
