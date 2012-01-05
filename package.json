@@ -7,5 +7,5 @@
     "main" : "gdata.js",
     "dependencies": {},
     "repository" : {"type": "git" , "url": "http://github.com/smurthas/gdata-js.git" },
-    "engines": { "node": ">=0.4.6 <0.5.0" }
+    "engines": { "node": ">=0.4.6 <0.7.0" }
 }
