@@ -78,7 +78,7 @@ module.exports = function(client_id, client_secret, redirect_uri) {
                 httpsRes.on('data', function(moreData) {
                     data += moreData;
                 });
-                httpsRes.on('close', function() {
+                httpsRes.on('end', function() {
                     try {
                         callback(null, JSON.parse(data.toString()));
                     } catch(err) {
