@@ -11,19 +11,23 @@ module.exports = function(client_id, client_secret, redirect_uri) {
     var clientSecret = client_secret;
     var redirectURI = redirect_uri;
     var token;
-    
+
     var client = new EventEmitter();
-    client.getAccessToken = function(scope, req, res, callback) {
+    client.getAccessToken = function(options, req, res, callback) {
         if(req.query.error) {
             callback(req.query.error);
         } else if(!req.query.code) {
+            options.client_id = clientID;
+            options.redirect_uri = options.redirect_uri || redirectURI;
+            options.response_type = 'code';
             var height = 750;
             var width = 980;
-            resp = "<script type='text/javascript'>var left= (screen.width / 2) - (" + width + " / 2); var top = (screen.height / 2) - (" + height + " / 2); window.open('" + oauthBase + '/auth?' + querystring.stringify({client_id: clientID, redirect_uri: redirectURI, scope: scope, response_type: 'code'}) + "', 'auth', 'menubar=no,toolbar=no,status=no,width=" + width + ",height=" + height + ",toolbar=no,left=' + left + 'top=' + top);</script>";
-            res.end(resp + '<a target=_new href=\'' + oauthBase + '/auth?' + querystring.stringify({client_id: clientID , 
-                                                                                    redirect_uri: redirectURI, 
-                                                                                    scope: scope, 
-                                                                                    response_type: 'code'}) + '\'>Authenticate</a>');
+            resp = "<script type='text/javascript'>" +
+                      "var left= (screen.width / 2) - (" + width + " / 2);" +
+                      "var top = (screen.height / 2) - (" + height + " / 2);" +
+                      "window.open('" + oauthBase + '/auth?' + querystring.stringify(options) + "', 'auth', 'menubar=no,toolbar=no,status=no,width=" + width + ",height=" + height + ",toolbar=no,left=' + left + 'top=' + top);" +
+                    "</script>";
+            res.end(resp + '<a target=_new href=\'' + oauthBase + '/auth?' + querystring.stringify(options) + '\'>Authenticate</a>');
         } else {
              doPost({grant_type:'authorization_code',
                       code:req.query.code,
@@ -36,10 +40,11 @@ module.exports = function(client_id, client_secret, redirect_uri) {
                       });
         }
     }
-    
+
     client.setToken = function(tkn) {
         token = tkn;
     }
+
     client.getFeed = function(url, params, callback) {
         if(!callback && typeof params === 'function') {
             callback = params;
@@ -52,8 +57,8 @@ module.exports = function(client_id, client_secret, redirect_uri) {
             callback(err, body);
         });
     };
-    
-    
+
+
     function doRequest(url, params, callback) {
         var path = URL.parse(url).pathname + '?' + querystring.stringify(params);
         var options = {
@@ -92,7 +97,7 @@ module.exports = function(client_id, client_secret, redirect_uri) {
         });
         httpsReq.end();
     }
-    
+
     function refreshToken(callback) {
         doPost({client_id:clientID,
                 client_secret:clientSecret,
@@ -106,6 +111,10 @@ module.exports = function(client_id, client_secret, redirect_uri) {
                    callback(err, result);
                });
     }
+
+    //for debugging
+    client._refreshToken = refreshToken;
+
     return client;
 }
 
