@@ -17,16 +17,20 @@ var express = require('express'),
     connect = require('connect'),
     app = express.createServer(connect.bodyParser());
 
+var token;
+
 app.get('/', function (req, res) {
     // see https://developers.google.com/accounts/docs/OAuth2WebServer for options
     gdataClient.getAccessToken({scope: scope,
                                 access_type: 'offline',
-                                approval_prompt: 'force'}, req, res, function(err, token) {
+                                approval_prompt: 'force'}, req, res, function(err, _token) {
         if(err) {
             console.error('oh noes!', err);
             res.writeHead(500);
             res.end('error: ' + JSON.stringify(err));
         } else {
+            token = _token;
+            console.log('got token:', token);
             res.redirect('/getStuff');
         }
     });
@@ -43,8 +47,21 @@ app.get('/getStuff', function(req, res) {
         }
         res.end();
     });
-})
+});
 
-app.listen(8553);
+app.get('/refresh', function(req, res) {
+  console.log('forcing refresh...');
+  gdataClient._refreshToken(function(err, result) {
+    console.log('err,', err);
+    console.log('result,', result);
+    console.log('token,', token);
+  });
+});
+
+gdataClient.on('tokenRefresh', function() {
+  console.log('token refresh!', token);
+});
+
+app.listen(process.argv[4] || 8553);
 console.log('open http://localhost:8553');
 

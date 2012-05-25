@@ -73,7 +73,7 @@ module.exports = function(client_id, client_secret, redirect_uri) {
                 refreshToken(function(err, result) {
                     if(!err && result && !result.error && result.access_token) {
                         token.access_token = result.access_token;
-                        token.refresh_token = result.refresh_token;
+                        token.refresh_token = result.refresh_token || token.refresh_token;
                         client.emit('tokenRefresh');
                         client.getFeed(url, params, callback);
                     }
