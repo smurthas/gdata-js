@@ -1,11 +1,13 @@
 {
     "name": "gdata-js",
     "description": "Simple OAuth 2.0 GData API client",
-    "version": "2.0.1",
+    "version": "3.0.0",
     "author": "Simon Murtha-Smith <simon@murtha-smith.com>",
     "keywords": ["google", "gdata"],
     "main" : "gdata.js",
-    "dependencies": {},
+    "dependencies": {
+      "request":"2.12.0"
+    },
     "repository" : {"type": "git" , "url": "http://github.com/smurthas/gdata-js.git" },
-    "engines": { "node": ">=0.6.0 <0.7.0" }
+    "engines": { "node": ">=0.8.0 <0.9.0" }
 }

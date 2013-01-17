@@ -2,6 +2,9 @@ var EventEmitter = require('events').EventEmitter;
 var https = require('https');
 var parse = require('url').parse;
 var querystring = require('querystring');
+var request = require('request');
+
+var URL = require('url');
 
 var oauthBase = 'https://accounts.google.com/o/oauth2';
 
@@ -89,6 +92,10 @@ module.exports = function (client_id, client_secret, redirect_uri) {
     token = tkn;
   };
 
+  client.getToken = function() {
+    return token;
+  }
+
   client.getFeed = function (url, params, callback) {
     if (!callback && typeof params === 'function') {
       callback = params;
@@ -106,6 +113,26 @@ module.exports = function (client_id, client_secret, redirect_uri) {
       callback(err, body);
     });
   };
+
+  client.post = function(options, callback) {
+    if (!options.qs) options.qs = {};
+    if (!options.qs.access_token) options.qs.access_token = token.access_token;
+    request.post(options, function(err, resp, body) {
+      if (err) return callback(err, body);
+      if (resp.statusCode === 401) {
+        return refreshToken(function(err, result) {
+          if(!err && result && !result.error && result.access_token) {
+            token.access_token = result.access_token;
+            token.refresh_token = result.refresh_token || token.refresh_token;
+            client.emit('tokenRefresh');
+            options.qs.access_token = token.access_token;
+            client.post(options, callback);
+          }
+        });
+      }
+      return callback(null, body);
+    })
+  }
 
   function doRequest(url, params, callback) {
     var parsedUrl = parse(url);
