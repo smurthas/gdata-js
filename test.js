@@ -15,7 +15,9 @@ var scope = 'https://www.google.com/m8/feeds/'; //contacts
 
 var express = require('express'),
     connect = require('connect'),
-    app = express.createServer(connect.bodyParser());
+    app = express();
+
+app.use(connect.bodyParser());
 
 var token;
 
@@ -41,9 +43,9 @@ app.get('/getStuff', function(req, res) {
     function(err, feed) {
         res.writeHead(200);
         for(var i in feed.feed.entry) {
-            res.write(JSON.stringify(feed.feed.entry[i]['title']));
-            res.write(JSON.stringify(feed.feed.entry[i]['gd$email']));
-            res.write('\n\n')
+            res.write(JSON.stringify(feed.feed.entry[i].title));
+            res.write(JSON.stringify(feed.feed.entry[i].gd$email));
+            res.write('\n\n');
         }
         res.end();
     });
