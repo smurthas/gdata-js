@@ -38,18 +38,7 @@ function doPost(body, callback) {
   httpsReq.end();
 }
 
-exports.clientFromAuth = function (auth) {
-  var gdataClient = exports.client(
-    auth.appKey || auth.clientID,
-    auth.appSecret || auth.clientSecret,
-    auth.redirectURI);
-
-  gdataClient.setToken(auth.token);
-
-  return gdataClient;
-};
-
-exports.client = function (client_id, client_secret, redirect_uri) {
+module.exports = function (client_id, client_secret, redirect_uri) {
   var clientID = client_id;
   var clientSecret = client_secret;
   var redirectURI = redirect_uri;
