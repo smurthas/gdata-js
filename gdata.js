@@ -4,8 +4,6 @@ var parse = require('url').parse;
 var querystring = require('querystring');
 var request = require('request');
 
-var URL = require('url');
-
 var oauthBase = 'https://accounts.google.com/o/oauth2';
 
 function doPost(body, callback) {
@@ -20,7 +18,16 @@ function doPost(body, callback) {
   var httpsReq = https.request(options, function (httpsRes) {
     if (httpsRes.statusCode === 200) {
       httpsRes.on('data', function (data) {
-        callback(null, JSON.parse(data.toString()));
+        var res;
+        try {
+          res = JSON.parse(data.toString());
+        } catch(err) {
+          return callback({
+            err: err,
+            res: data
+          });
+        }
+        callback(null, res);
       });
     } else {
       httpsRes.on('data', function (data) {
@@ -94,7 +101,7 @@ module.exports = function (client_id, client_secret, redirect_uri) {
 
   client.getToken = function() {
     return token;
-  }
+  };
 
   client.getFeed = function (url, params, callback) {
     if (!callback && typeof params === 'function') {
@@ -131,8 +138,8 @@ module.exports = function (client_id, client_secret, redirect_uri) {
         });
       }
       return callback(null, body);
-    })
-  }
+    });
+  };
 
   function doRequest(url, params, callback) {
     var parsedUrl = parse(url);
