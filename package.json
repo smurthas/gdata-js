@@ -6,7 +6,7 @@
     "keywords": ["google", "gdata"],
     "main" : "gdata.js",
     "dependencies": {
-      "request":"2.12.0"
+      "request":"2.79.0"
     },
     "repository" : {"type": "git" , "url": "http://github.com/smurthas/gdata-js.git" },
     "engines": { "node": ">=0.8.0 <0.9.0" }
