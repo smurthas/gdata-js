@@ -17,14 +17,18 @@ function doPost(body, callback) {
 
   var httpsReq = https.request(options, function (httpsRes) {
     if (httpsRes.statusCode === 200) {
-      httpsRes.on('data', function (data) {
+      var fullbody = "";
+      httpsRes.on('data', function (chunk) {
+        fullbody += chunk.toString();
+      });
+      httpsRes.on('end', function(){
         var res;
         try {
-          res = JSON.parse(data.toString());
+          res = JSON.parse(fullbody.toString());
         } catch(err) {
           return callback({
             err: err,
-            res: data
+            res: fullbody
           });
         }
         callback(null, res);
